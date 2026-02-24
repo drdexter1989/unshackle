@@ -129,8 +129,8 @@ class _Aria2Manager:
             f"--rpc-listen-port={self._rpc_port}",
             f"--rpc-secret={self._rpc_secret}",
         ]
-        if self._proxy:
-            args.extend(["--all-proxy", self._proxy])
+        # if self._proxy:
+        #     args.extend(["--all-proxy", self._proxy])
         return args
 
     def ensure_started(
@@ -323,6 +323,9 @@ def download(
             "out": url_filename,
             "split": str(1 if len(urls) > 1 else int(config.aria2c.get("split", 5))),
         }
+        
+        if proxy:
+            opts["all-proxy"] = proxy  # <--- Añadir esto aquí
 
         # Cookies as header
         if cookies:
@@ -501,7 +504,7 @@ def aria2c(
 
         port = get_free_port()
         username, password = get_random_bytes(8).hex(), get_random_bytes(8).hex()
-        local_proxy = f"http://{username}:{password}@localhost:{port}"
+        local_proxy = f"http://{username}:{password}@127.0.0.1:{port}"
 
         scheme = {"https": "http+ssl", "socks5h": "socks"}.get(proxy.scheme, proxy.scheme)
 
