@@ -129,8 +129,8 @@ class _Aria2Manager:
             f"--rpc-listen-port={self._rpc_port}",
             f"--rpc-secret={self._rpc_secret}",
         ]
-        if self._proxy:
-            args.extend(["--all-proxy", self._proxy])
+        # if self._proxy:
+        #     args.extend(["--all-proxy", self._proxy])
         return args
 
     def ensure_started(
@@ -160,15 +160,15 @@ class _Aria2Manager:
                 effective_max_workers = max_workers
 
             if self._proc and self._proc.poll() is None:
-                if effective_proxy != self._proxy or effective_max_workers != self._max_workers:
-                    self._logger.warning(
-                        "aria2c process is already running; requested proxy=%r, max_workers=%r, "
-                        "but running process will continue with proxy=%r, max_workers=%r",
-                        effective_proxy,
-                        effective_max_workers,
-                        self._proxy,
-                        self._max_workers,
-                    )
+                # if effective_proxy != self._proxy or effective_max_workers != self._max_workers:
+                #     self._logger.warning(
+                #         "aria2c process is already running; requested proxy=%r, max_workers=%r, "
+                #         "but running process will continue with proxy=%r, max_workers=%r",
+                #         effective_proxy,
+                #         effective_max_workers,
+                #         self._proxy,
+                #         self._max_workers,
+                #     )
                 return
 
             self._rpc_port = get_free_port()
@@ -324,6 +324,9 @@ def download(
             "split": str(1 if len(urls) > 1 else int(config.aria2c.get("split", 5))),
         }
 
+        if proxy:
+            opts["all-proxy"] = proxy
+            
         # Cookies as header
         if cookies:
             mock_request = requests.Request(url=url_data["url"])
@@ -501,7 +504,7 @@ def aria2c(
 
         port = get_free_port()
         username, password = get_random_bytes(8).hex(), get_random_bytes(8).hex()
-        local_proxy = f"http://{username}:{password}@localhost:{port}"
+        local_proxy = f"http://{username}:{password}@127.0.0.1:{port}"
 
         scheme = {"https": "http+ssl", "socks5h": "socks"}.get(proxy.scheme, proxy.scheme)
 
